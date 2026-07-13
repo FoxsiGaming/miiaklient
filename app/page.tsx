@@ -1,30 +1,20 @@
 import Link from "next/link";
-import { cookies } from "next/headers";
 import { ArrowRight, ShieldCheck, Sparkles, Wrench } from "lucide-react";
-import { prisma } from "@/lib/db";
-import { getDictionary, getLocale } from "@/lib/i18n";
+import { getDictionary } from "@/lib/i18n";
+import { getProducts, getSiteContent } from "@/lib/site-data";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
 
 function getContentValue(content: Record<string, string>, key: string, fallback: string) {
   return content[key] || fallback;
 }
 
 export default async function HomePage() {
-  const cookieStore = await cookies();
-  const locale = getLocale(cookieStore.get("locale")?.value);
+  const locale = "fi" as const;
   const t = getDictionary(locale);
 
-  const [products, siteContent] = await Promise.all([
-    prisma.product.findMany({
-      where: { isVisible: true },
-      orderBy: { id: "asc" },
-      take: 3,
-    }),
-    prisma.siteContent.findMany(),
-  ]);
-
-  const content = Object.fromEntries(siteContent.map((item) => [item.key, item.value]));
+  const products = getProducts().slice(0, 3);
+  const content = getSiteContent();
 
   return (
     <div className="space-y-16">

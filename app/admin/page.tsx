@@ -1,21 +1,14 @@
-import { cookies } from "next/headers";
-import { prisma } from "@/lib/db";
-import { createProduct, deleteProduct, saveSiteContent, updateProduct } from "@/app/actions";
-import { getDictionary, getLocale } from "@/lib/i18n";
+import { getDictionary } from "@/lib/i18n";
+import { getProducts, getSiteContent } from "@/lib/site-data";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
 
 export default async function AdminPage() {
-  const cookieStore = await cookies();
-  const locale = getLocale(cookieStore.get("locale")?.value);
+  const locale = "fi" as const;
   const t = getDictionary(locale);
 
-  const [products, siteContent] = await Promise.all([
-    prisma.product.findMany({ orderBy: { id: "asc" } }),
-    prisma.siteContent.findMany(),
-  ]);
-
-  const content = Object.fromEntries(siteContent.map((item) => [item.key, item.value]));
+  const products = getProducts();
+  const content = getSiteContent();
 
   return (
     <div className="space-y-8">
@@ -32,7 +25,7 @@ export default async function AdminPage() {
 
       <section className="rounded-[2rem] border border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="text-2xl font-semibold text-slate-900">{t.adminContentTitle}</h2>
-        <form action={saveSiteContent} className="mt-6 grid gap-4 lg:grid-cols-2">
+        <form className="mt-6 grid gap-4 lg:grid-cols-2">
           <label className="text-sm font-medium text-slate-700">
             {t.adminHeroHeading}
             <input name="heroHeading" defaultValue={content.heroHeading || "Pidämme Suomen kodit lämpiminä ja energiatehokkaina."} className="mt-1 w-full rounded-2xl border border-gray-200 px-4 py-3" />
@@ -57,10 +50,8 @@ export default async function AdminPage() {
             {t.adminAddress}
             <input name="companyAddress" defaultValue={content.companyAddress || "Katu 12, 00100 Helsinki"} className="mt-1 w-full rounded-2xl border border-gray-200 px-4 py-3" />
           </label>
-          <div className="lg:col-span-2">
-            <button type="submit" className="rounded-full bg-red-600 px-6 py-3 font-semibold text-white transition hover:bg-red-700">
-              {t.adminSave}
-            </button>
+          <div className="lg:col-span-2 rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-slate-600">
+            {t.adminSave} - tämä demo-versio käyttää staattista sisältöä, joten muutokset tallennetaan vain buildin yhteydessä.
           </div>
         </form>
       </section>
@@ -71,7 +62,7 @@ export default async function AdminPage() {
           <div className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-slate-600">{products.length} {t.adminProductCount}</div>
         </div>
 
-        <form action={createProduct} className="mt-6 grid gap-4 rounded-[1.5rem] border border-gray-200 bg-gray-50 p-6 lg:grid-cols-2">
+        <form className="mt-6 grid gap-4 rounded-[1.5rem] border border-gray-200 bg-gray-50 p-6 lg:grid-cols-2">
           <h3 className="text-lg font-semibold text-slate-900 lg:col-span-2">{t.adminAddProduct}</h3>
           <label className="text-sm font-medium text-slate-700">
             {t.adminProductName}
@@ -109,10 +100,8 @@ export default async function AdminPage() {
             <input type="checkbox" name="isVisible" defaultChecked />
             {t.adminVisible}
           </label>
-          <div className="lg:col-span-2">
-            <button type="submit" className="rounded-full bg-yellow-400 px-6 py-3 font-semibold text-slate-900 transition hover:bg-yellow-300">
-              {t.adminAddButton}
-            </button>
+          <div className="lg:col-span-2 rounded-2xl border border-dashed border-gray-300 bg-white p-4 text-sm text-slate-600">
+            {t.adminAddButton} - demo-tilassa tämä osio on vain esittelyssä.
           </div>
         </form>
 
@@ -139,7 +128,7 @@ export default async function AdminPage() {
                   <td className="px-4 py-4 text-slate-700">{product.isVisible ? t.adminYes : t.adminNo}</td>
                   <td className="px-4 py-4">
                     <div className="flex flex-col gap-3">
-                      <form action={updateProduct} className="space-y-3 rounded-2xl border border-gray-200 p-3">
+                      <form className="space-y-3 rounded-2xl border border-gray-200 p-3">
                         <input type="hidden" name="id" value={product.id} />
                         <input name="name" defaultValue={product.name} className="w-full rounded-2xl border border-gray-200 px-3 py-2" />
                         <input name="type" defaultValue={product.type} className="w-full rounded-2xl border border-gray-200 px-3 py-2" />
@@ -157,7 +146,7 @@ export default async function AdminPage() {
                           {t.adminUpdate}
                         </button>
                       </form>
-                      <form action={deleteProduct}>
+                      <form>
                         <input type="hidden" name="id" value={product.id} />
                         <button type="submit" className="rounded-full bg-gray-900 px-4 py-2 text-sm font-semibold text-white">
                           {t.adminDelete}

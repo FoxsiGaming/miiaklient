@@ -1,21 +1,18 @@
 import Link from "next/link";
-import { cookies } from "next/headers";
 import { Flame, PhoneCall, ShieldCheck } from "lucide-react";
 import LanguageSwitcher from "@/app/components/language-switcher";
-import { prisma } from "@/lib/db";
-import { getDictionary, getLocale } from "@/lib/i18n";
+import { getDictionary } from "@/lib/i18n";
+import { getSiteContent } from "@/lib/site-data";
 
 export default async function SiteShell({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = await cookies();
-  const locale = getLocale(cookieStore.get("locale")?.value);
+  const locale = "fi" as const;
   const t = getDictionary(locale);
 
-  const siteContent = await prisma.siteContent.findMany();
-  const content = Object.fromEntries(siteContent.map((item) => [item.key, item.value]));
+  const content = getSiteContent();
   const companyName = content.companyName || "Lämpökamu";
   const companyPhone = content.companyPhone || "+358 40 123 4567";
 

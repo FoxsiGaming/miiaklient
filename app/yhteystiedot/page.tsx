@@ -1,18 +1,15 @@
-import { cookies } from "next/headers";
 import { Mail, MapPin, PhoneCall } from "lucide-react";
 import ContactForm from "@/app/components/contact-form";
-import { prisma } from "@/lib/db";
-import { getDictionary, getLocale } from "@/lib/i18n";
+import { getDictionary } from "@/lib/i18n";
+import { getSiteContent } from "@/lib/site-data";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
 
 export default async function ContactPage() {
-  const cookieStore = await cookies();
-  const locale = getLocale(cookieStore.get("locale")?.value);
+  const locale = "fi" as const;
   const t = getDictionary(locale);
 
-  const siteContent = await prisma.siteContent.findMany();
-  const content = Object.fromEntries(siteContent.map((item) => [item.key, item.value]));
+  const content = getSiteContent();
 
   return (
     <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
