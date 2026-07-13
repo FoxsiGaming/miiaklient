@@ -19,12 +19,14 @@ npm run build
 
 The build outputs a static site into the `out/` folder, which works with GitHub Pages, Netlify, and similar hosts.
 
-## Deploy to GitHub Pages
+## Deploy from the repo
+
+This repository includes a GitHub Actions workflow that publishes the site automatically from the main branch.
 
 1. Push the repository to GitHub.
-2. Enable GitHub Pages in the repository settings.
-3. Set the publish source to the `out` folder.
-4. Visit the published URL.
+2. Open the repository Settings → Pages.
+3. Ensure GitHub Actions is selected as the source.
+4. The workflow in [.github/workflows/deploy.yml](.github/workflows/deploy.yml) will publish it automatically.
 
 ## Notes
 
